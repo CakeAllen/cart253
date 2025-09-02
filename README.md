@@ -1,6 +1,6 @@
 # cart253
 
-## This is Pippin Barr’s coursework repository for CART253
+## This is my coursework repository for Pippin Barr's CART253 course!
 
   - **Here's another line for the challenge.**
 
