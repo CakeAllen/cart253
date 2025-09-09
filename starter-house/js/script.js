@@ -38,13 +38,18 @@ function draw()
     drawDoorknob();
 }
 
-
+/**
+ *  Draws a sky
+ */
 function drawSky()
 {
     // The sky
     background(150, 200, 250);
 }
 
+/**
+ *  Draws a puffy white cloud.
+ */
 function drawCloud()
 {
     // A cloud
@@ -62,6 +67,9 @@ function drawCloud()
     pop();
 }
 
+/**
+ *  Draws the Ground.
+ */
 function drawGround()
 {
     // The ground
@@ -72,6 +80,9 @@ function drawGround()
     pop();
 }
 
+/**
+ *  Draws the main body of the house.
+ */
 function drawHouse()
 {
     // The main body of the house
@@ -82,6 +93,9 @@ function drawHouse()
     pop();
 }
 
+/**
+ *  Draws the roof of the house.
+ */
 function drawRoof()
 {
     // The roof
@@ -93,6 +107,9 @@ function drawRoof()
     pop();
 }
 
+/**
+ *  Draws the window.
+ */
 function drawWindow()
 {
     // A window
@@ -106,6 +123,9 @@ function drawWindow()
     pop();
 }
 
+/**
+ *  Draws the door.
+ */
 function drawDoor()
 {
     // The door
@@ -116,6 +136,9 @@ function drawDoor()
     pop();
 }
 
+/**
+ *  Draws the doorknob. We can finally enter the house :)
+ */
 function drawDoorKnob()
 {
     // The doorknob
