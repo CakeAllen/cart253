@@ -8,17 +8,13 @@
 
 "use strict";
 
-/**
- * OH LOOK I DIDN'T DESCRIBE SETUP!!
-*/
-function setup() {
-
+function setup() 
+{
+	createCanvas(640, 480);
 }
 
-
-/**
- * OOPS I DIDN'T DESCRIBE WHAT MY DRAW DOES!
-*/
-function draw() {
-
+function draw() 
+{
+	background(25, 100, 125);
+	rect(50, 50, 540, 380);
 }
