@@ -38,7 +38,7 @@ let sky =
     },
     // amount of colour to remove > time
     time: 1
-}
+};
 
 // the sun
 let sun =
@@ -55,7 +55,7 @@ let sun =
         g: 255,
         b: 0
     }
-}
+};
 
 // the ground
 let ground =
@@ -75,7 +75,7 @@ let ground =
         g: 150,
         b: 0
     },
-}
+};
 
 // the bird
 let bird =
@@ -115,7 +115,7 @@ let bird =
         x: 0.75,
         y: undefined
     }
-}
+};
 
 /**
  * Create the canvas
@@ -130,6 +130,20 @@ function setup()
  */
 function draw() 
 {
+    handleSky();    
+
+    drawSun();
+
+    drawGround();
+
+    drawMrFurious();
+
+    drawBird();
+}
+
+// handles the sky's behaviour
+function handleSky()
+{
     // sky turns orange until the sun reaches a certain point in the canvas, then darkens to black.
     if (sun.y > height*0.5)
     {
@@ -143,15 +157,8 @@ function draw()
     
     sky.colour.b -= sky.time;
 
+    // draws the sky
     background(sky.colour.r, sky.colour.g, sky.colour.b);
-
-    drawSun();
-
-    drawGround();
-
-    drawMrFurious();
-
-    drawBird();
 }
 
 // draws mr furious
@@ -175,10 +182,19 @@ function drawMrFurious()
 
     // handles mr furious' position on the canvas, starts only when he's starts to get red
 
+    let minRage = -1;
+    minRage -= 2;
+    minRage = constrain(minRage, -40, -1);
+
+    let maxRage = 2;
+    maxRage += 2;
+    maxRage = constrain(maxRage, 1, 40);
+    
+
     if (mrFurious.fill.r <= 175)
     {
-        mrFurious.movement.x = random(-10, 20);
-        mrFurious.movement.y = random(-5, 15);
+        mrFurious.movement.x = random(minRage, maxRage);
+        mrFurious.movement.y = random(minRage-5, maxRage+5);
     }
     else
     {
