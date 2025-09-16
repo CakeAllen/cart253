@@ -183,11 +183,11 @@ function drawMrFurious()
     // handles mr furious' position on the canvas, starts only when he's starts to get red
 
     let minRage = -1;
-    minRage -= 2;
+    minRage -= 1;
     minRage = constrain(minRage, -40, -1);
 
     let maxRage = 2;
-    maxRage += 2;
+    maxRage += 1;
     maxRage = constrain(maxRage, 1, 40);
     
 
