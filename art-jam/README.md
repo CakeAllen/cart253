@@ -22,9 +22,9 @@ This bit should have some images of the program running so that the reader has a
 This bit should attribute any code, assets or other elements used taken from other sources. For example:
 
 > - This project uses [p5.js](https://p5js.org).
-> Programs used:
-    - Visual Studio Code
-    - Paint.NET
+> - Programs used:
+        - Visual Studio Code
+        - Paint.NET
 
 ## License
 
