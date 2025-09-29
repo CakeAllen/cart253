@@ -15,7 +15,6 @@
 function setup() {
          // e=mc squared
     createCanvas(640, 480);
-
 }
 
 
