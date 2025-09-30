@@ -7,7 +7,10 @@
 
 "use strict";
 
+const lerpSpeed = 0.5;
+
 let enableHUD = true;
+let spawnProjectile = false;
 
 let player =
 {
@@ -20,15 +23,18 @@ let player =
         // attack power, i.e. how much damage this actor causes
         aPower: 10,
         // kind of like a cooldown, starts at 0 because the player should be able to attack as soon as they start
-        rate: 0
+        attackSpeed: 0,
+        tempInvincibility: 0,
+        canBeDamaged: true
     },
     // physical appearance variables
     appearance:
     {
+        size: 75,
         x: 0,
-        y: 0,
-        size: 0
-    }
+        speed: 0.5,
+        verticalMovement: 0
+    },
 };
 
 let face =
@@ -40,9 +46,10 @@ let face =
     combat:
     {
         // attack power, i.e. how much damage this actor causes
-        aPower: 20,
+        aPower: 1,
         // kind of like a cooldown, starts at 1 so that the player doesn't get immediately surprised by an attack
-        rate: 1,
+        attackSpeed: 2,
+        hit: false,
         weakSpotOpen: false,
         weakSpotDamageMultiplier: 2.0,
         closedDamageMultiplier: 0.5
@@ -53,12 +60,14 @@ let projectile =
 {
     x: undefined,
     y: undefined,
-    size: 5,
-    speed: 5,
-    acceleration: 5
+    w: 5,
+    h: 55,
+    size: 20,
+    velocity: 0,
+    speed: 0.1,
+    acceleration: -0.05
 }
 
-// has all the variables pertaining to the health bar at the top
 let hpBar =
 {
     nameText: "The Face",
@@ -83,20 +92,66 @@ let hpBar =
         y: undefined,
         w: undefined,
         h: 15,
-        colour: (75)
+        colour: 75
     },
+}
+
+let playerHpBar =
+{
+    x: 0,
+    y: 0,
+    size: 0,
+    emptyColour: 75,
+    colour:
+    {
+        r: 255,
+        g: 0,
+        b: 0
+    }
 }
 
 function setup()
 {
+    // creates the canvas
     createCanvas(windowWidth, windowHeight);
+    frameRate(60);
 }
 
 function draw() 
 {
+    // draws the background
     background(230, 145, 0);
 
+    if (spawnProjectile)
+    {
+        // draws the projectile
+        push();
+        noStroke();
+        fill('red');
+        // calculates velocity
+        let velocity = projectile.y + projectile.acceleration;
+        velocity = constrain(velocity, 0, 15);
+        projectile.y -= velocity;
+        rect(projectile.x, projectile.y, projectile.w, projectile.h);
+        pop()
+
+        if (projectile.y < 1 || face.combat.hit)
+        {
+            spawnProjectile = false;
+        }
+    }
+
+    // handles player movement
+    handleMovement();
+
+    // draws the HUD
     handleHUD();
+    cursor(CROSS);
+
+    // COOLDOWNS
+    player.combat.attackSpeed -= deltaTime;
+    player.combat.tempInvincibility -= deltaTime;
+    face.combat.attackSpeed -= deltaTime;
 
     // DEBUGGING
     // if (face.hp <= 0)
@@ -107,6 +162,23 @@ function draw()
     // {
     //     face.hp -= 1;
     // }
+}
+
+function mouseClicked()
+{
+    // spawns projectile, after spawning one, the projectile goes on cooldown
+    if (player.combat.attackSpeed <= 0)
+    {
+        projectile.x = mouseX;
+        projectile.y = player.appearance.verticalMovement;
+        spawnProjectile = true;
+        player.combat.attackSpeed = 400;
+    }
+}
+
+function doubleClicked()
+{
+    damagePlayer(face.combat.aPower);
 }
 
 // a function that draws a rectangle, made to save space
@@ -139,6 +211,7 @@ function handleHUD()
     if (enableHUD)
     {
         drawBossHealthBar();
+        drawPlayerHealth();
     }
 }
 
@@ -162,12 +235,75 @@ function drawBossHealthBar()
 
     // calculates the percentage of the bar based on the boss' current health.
     let hpBarFillWidth = map(face.hp, 0, face.maxHP, 0, 1, true); 
-    
+    // multiplies the total width of the bar with the health percentage from above
     hpBar.fill.w = hpBar.background.w * hpBarFillWidth;
 
     // first handles the background
-    drawRect(false, 0, 0, true, hpBar.background.colour, 0, 0, 0, hpBar.background.x, hpBar.background.y, hpBar.background.w, hpBar.background.h);
+    drawRect(false, 0, 0, true, hpBar.background.colour, 0, 0, 0, hpBar.background.x, hpBar.background.y, 
+        hpBar.background.w, hpBar.background.h);
     // then handles the fill
-    drawRect(false, 0, 0, false, undefined, hpBar.fill.colour.r, hpBar.fill.colour.g, hpBar.fill.colour.b, hpBar.fill.x, hpBar.fill.y, hpBar.fill.w, hpBar.fill.h);
+    drawRect(false, 0, 0, false, undefined, hpBar.fill.colour.r, hpBar.fill.colour.g, hpBar.fill.colour.b, 
+        hpBar.fill.x, hpBar.fill.y, hpBar.fill.w, hpBar.fill.h);
 }
 
+function drawPlayerHealth()
+{
+
+}
+
+function handleMovement()
+{
+    drawPlayer();
+}
+
+// draws the player
+function drawPlayer()
+{
+    push();
+    noStroke();
+    // visual clarity to indicate that the player, after getting hit, will have a small grace period to reposition before being able to
+    // get hit again.
+    if (player.combat.tempInvincibility > 0)
+    {
+        let flashIndex = 0;
+        if (flashIndex == 0)
+        {
+            flashIndex += 1;
+            fill(255);
+        }
+        else if (flashIndex == 1)
+        {
+            flashIndex -= 1;
+            fill(0);
+        }
+    }
+    else
+    {
+        fill(0);
+    }
+
+    player.appearance.verticalMovement = constrain(mouseY, (windowHeight-(windowHeight*0.33)),windowHeight);
+    ellipse(mouseX, player.appearance.verticalMovement, player.appearance.size);
+    pop()
+}
+
+// function for when the player gets hit
+function damagePlayer(amount)
+{
+    if (player.combat.canBeDamaged)
+    {
+        player.combat.canBeDamaged = false;
+        player.combat.tempInvincibility = 1000;
+        player.hp -= amount;
+    }
+}
+
+// function for when the player hits the face's weak spot
+function damageFace(amount)
+{
+    if (face.combat.weakSpotOpen)
+    {
+        face.combat.weakSpotOpen = false;
+        face.hp -= amount;
+    }
+}
