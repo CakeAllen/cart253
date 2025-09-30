@@ -50,10 +50,29 @@ let face =
         // kind of like a cooldown, starts at 1 so that the player doesn't get immediately surprised by an attack
         attackSpeed: 2,
         hit: false,
-        weakSpotOpen: false,
-        weakSpotDamageMultiplier: 2.0,
+        weakSpotOpen: true,
+        weakSpotDamageMultiplier: 2.5,
         closedDamageMultiplier: 0.5
     },
+
+    appearance:
+    {
+        x: undefined,
+        y: undefined,
+        w: 450,
+        h: 550,
+        colour: 'orange'
+    },
+
+    weakSpot:
+    {
+        x: undefined,
+        y: undefined,
+        w: 100,
+        h: 0,
+        colour: 'yellow',
+        offsetFromCentre: 90
+    }
 };
 
 let projectile =
@@ -120,7 +139,10 @@ function setup()
 function draw() 
 {
     // draws the background
-    background(230, 145, 0);
+    background('purple');
+
+    // draws the face
+    drawFace();
 
     if (spawnProjectile)
     {
@@ -135,14 +157,28 @@ function draw()
         rect(projectile.x, projectile.y, projectile.w, projectile.h);
         pop()
 
+        if (projectile.x < ((windowWidth/2)+50) && projectile.x > ((windowWidth/2)-50) && 
+        projectile.y < (((windowHeight/2)-face.weakSpot.offsetFromCentre)+25) && 
+        projectile.y > (((windowHeight/2)-face.weakSpot.offsetFromCentre)-25))
+        {
+            face.combat.hit = true;
+            damageFace(player.combat.aPower);
+        }
+
         if (projectile.y < 1 || face.combat.hit)
         {
             spawnProjectile = false;
+            face.combat.hit = false;
         }
     }
-
-    // handles player movement
+    
+    drawWeakSpotLids();
+    drawWeakSpot();
+    
+    // handles player movement and draws the player character
     handleMovement();
+
+    
 
     // draws the HUD
     handleHUD();
@@ -227,7 +263,7 @@ function drawBossHealthBar()
     hpBar.background.w = windowWidth-((windowWidth/3.5)*2);
 
     // draws the text of the boss' name
-    textSize(40);
+    textSize(30);
     fill(255);
     stroke(0);
     strokeWeight(4);
@@ -287,6 +323,49 @@ function drawPlayer()
     pop()
 }
 
+function drawFace()
+{
+    // draws the foundation of the face
+    push();
+    stroke(255);
+    strokeWeight(5);
+    fill(face.appearance.colour);
+
+    face.appearance.x = windowWidth/2;
+    face.appearance.y = windowHeight/2;
+
+    ellipse(face.appearance.x, face.appearance.y, face.appearance.w, face.appearance.h);
+    pop();
+}
+
+function drawWeakSpot()
+{
+    // draws the weak spot
+    push();
+    noStroke();
+    fill(face.weakSpot.colour);
+
+    face.weakSpot.x = face.appearance.x;
+    face.weakSpot.y = face.appearance.y - face.weakSpot.offsetFromCentre;
+
+    ellipse(face.weakSpot.x, face.weakSpot.y, face.weakSpot.w, face.weakSpot.h);
+    pop();
+}
+
+function drawWeakSpotLids()
+{
+    // draws the weak spot
+    push();
+    noStroke();
+    fill(215, 125, 0);
+
+    face.weakSpot.x = face.appearance.x;
+    face.weakSpot.y = face.appearance.y - face.weakSpot.offsetFromCentre;
+
+    ellipse(face.weakSpot.x, face.weakSpot.y, face.weakSpot.w, 50);
+    pop();
+}
+
 // function for when the player gets hit
 function damagePlayer(amount)
 {
@@ -304,6 +383,21 @@ function damageFace(amount)
     if (face.combat.weakSpotOpen)
     {
         face.combat.weakSpotOpen = false;
-        face.hp -= amount;
+        closeWeakSpot();
+        face.hp -= amount * face.combat.weakSpotDamageMultiplier;
     }
+    else
+    {
+        face.hp -= amount * face.combat.closedDamageMultiplier;
+    }
+}
+
+function openWeakSpot()
+{
+
+}
+
+function closeWeakSpot()
+{
+
 }
