@@ -10,7 +10,13 @@
 const lerpSpeed = 0.5;
 
 let enableHUD = true;
+let enabledGameOverScreen = false;
+let gameOverTextSize = 30;
+let tryAgainTextSize = 25;
+
 let spawnProjectile = false;
+// this bool allows the smoother closing/opening of the eye (the weak spot).
+let handleWeakSpot = false;
 
 let player =
 {
@@ -25,7 +31,8 @@ let player =
         // kind of like a cooldown, starts at 0 because the player should be able to attack as soon as they start
         attackSpeed: 0,
         tempInvincibility: 0,
-        canBeDamaged: true
+        canBeDamaged: true,
+        canShoot: true
     },
     // physical appearance variables
     appearance:
@@ -33,7 +40,8 @@ let player =
         size: 75,
         x: 0,
         speed: 0.5,
-        verticalMovement: 0
+        verticalMovement: 0,
+        canMove: true
     },
 };
 
@@ -50,7 +58,7 @@ let face =
         // kind of like a cooldown, starts at 1 so that the player doesn't get immediately surprised by an attack
         attackSpeed: 2,
         hit: false,
-        weakSpotOpen: true,
+        weakSpotOpen: false,
         weakSpotDamageMultiplier: 2.5,
         closedDamageMultiplier: 0.5
     },
@@ -69,7 +77,7 @@ let face =
         x: undefined,
         y: undefined,
         w: 100,
-        h: 0,
+        h: 2,
         colour: 'yellow',
         offsetFromCentre: 90
     }
@@ -139,12 +147,12 @@ function setup()
 function draw() 
 {
     // draws the background
-    background('purple');
+    background(135, 206, 235);
 
     // draws the face
     drawFace();
 
-    if (spawnProjectile)
+    if (spawnProjectile && player.combat.canShoot)
     {
         // draws the projectile
         push();
@@ -157,6 +165,7 @@ function draw()
         rect(projectile.x, projectile.y, projectile.w, projectile.h);
         pop()
 
+        // detects if projectile collides with the weak spot.
         if (projectile.x < ((windowWidth/2)+50) && projectile.x > ((windowWidth/2)-50) && 
         projectile.y < (((windowHeight/2)-face.weakSpot.offsetFromCentre)+25) && 
         projectile.y > (((windowHeight/2)-face.weakSpot.offsetFromCentre)-25))
@@ -178,15 +187,70 @@ function draw()
     // handles player movement and draws the player character
     handleMovement();
 
-    
+    // allows for the eye to open and close smoothly, rather than instantly
+    if (handleWeakSpot)
+    {
+        if (!face.combat.weakSpotOpen)
+        {
+            openWeakSpot();
+            if (face.weakSpot.h >= 50)
+            {
+                face.combat.weakSpotOpen = true;
+                handleWeakSpot = false;
+            }
+        }
+        else
+        {
+            closeWeakSpot();
+            if (face.weakSpot.h <= 2)
+            {
+                face.combat.weakSpotOpen = false;
+                handleWeakSpot = false;
+            }
+        }
+    }
 
     // draws the HUD
     handleHUD();
     cursor(CROSS);
+    
+    if (enabledGameOverScreen)
+    {
+
+
+        // makes the game over text grow over time
+        gameOverTextSize += 1;
+        gameOverTextSize = constrain(gameOverTextSize, 30, 150);
+        
+        textSize(gameOverTextSize);
+        fill('red');
+        stroke(255);
+        strokeWeight(5);
+        textAlign(CENTER);
+        text("Game Over", (windowWidth/2), (windowHeight/2));
+
+        // adds a line of text that says the player needs to refresh to try again after the game over text has gotten big enough
+        if (gameOverTextSize >= 135)
+        {
+            tryAgainTextSize += 0.5;
+            tryAgainTextSize = constrain(tryAgainTextSize, 25, 30);
+
+            textSize(tryAgainTextSize);
+            fill(255);
+            stroke(0);
+            strokeWeight(3);
+            textAlign(CENTER);
+            text("Refresh to try again.", (windowWidth/2), ((windowHeight/2) + 150));
+        }
+    }
 
     // COOLDOWNS
     player.combat.attackSpeed -= deltaTime;
     player.combat.tempInvincibility -= deltaTime;
+    if (player.combat.tempInvincibility <= 0)
+    {
+        player.combat.canBeDamaged = true;
+    }
     face.combat.attackSpeed -= deltaTime;
 
     // DEBUGGING
@@ -247,6 +311,7 @@ function handleHUD()
     if (enableHUD)
     {
         drawBossHealthBar();
+        drawMaxHealth();
         drawPlayerHealth();
     }
 }
@@ -284,12 +349,39 @@ function drawBossHealthBar()
 
 function drawPlayerHealth()
 {
+    let currentHearts = 50+(60*player.hp);
 
+    for (let x = 50; x < currentHearts; x += 60)
+    {
+        push();
+        noStroke();
+        fill('red');
+        circle(x, (windowHeight-50), 50);
+        pop();
+    }
+}
+
+function drawMaxHealth()
+{
+    let maxHearts = 50+(60*player.maxHP);
+
+    for (let x = 50; x < maxHearts; x += 60)
+    {
+        push();
+        noStroke();
+        fill(255, 0, 0, 50);
+        circle(x, (windowHeight-50), 50);
+        pop();
+    }
 }
 
 function handleMovement()
 {
-    drawPlayer();
+    if (player.appearance.canMove)
+    {
+        drawPlayer();
+    }
+    
 }
 
 // draws the player
@@ -362,7 +454,9 @@ function drawWeakSpotLids()
     face.weakSpot.x = face.appearance.x;
     face.weakSpot.y = face.appearance.y - face.weakSpot.offsetFromCentre;
 
-    ellipse(face.weakSpot.x, face.weakSpot.y, face.weakSpot.w, 50);
+    let eyelidW = face.weakSpot.w;
+
+    ellipse(face.weakSpot.x, face.weakSpot.y, eyelidW, 50);
     pop();
 }
 
@@ -374,6 +468,12 @@ function damagePlayer(amount)
         player.combat.canBeDamaged = false;
         player.combat.tempInvincibility = 1000;
         player.hp -= amount;
+
+        if (player.hp <= 0)
+        {
+            gameOver();
+            console.log('game over!');
+        }
     }
 }
 
@@ -382,8 +482,7 @@ function damageFace(amount)
 {
     if (face.combat.weakSpotOpen)
     {
-        face.combat.weakSpotOpen = false;
-        closeWeakSpot();
+        handleWeakSpot = true;
         face.hp -= amount * face.combat.weakSpotDamageMultiplier;
     }
     else
@@ -392,12 +491,25 @@ function damageFace(amount)
     }
 }
 
+// opens the eye
 function openWeakSpot()
 {
-
+    face.weakSpot.h += 5;
+    face.weakSpot.h = constrain(face.weakSpot.h, 2, 50);
 }
 
+// closes the eye
 function closeWeakSpot()
 {
+    face.weakSpot.h -= 5;
+    face.weakSpot.h = constrain(face.weakSpot.h, 2, 50);
+}
 
+function gameOver()
+{
+    cursor(ARROW);
+    player.appearance.canMove = false;
+    player.combat.canShoot = false;
+    enableHUD = false;
+    enabledGameOverScreen = true;
 }
