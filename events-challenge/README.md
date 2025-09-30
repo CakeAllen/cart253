@@ -1,6 +1,6 @@
-# TITLE OF PROJECT
+# Events Challenge
 
-AUTHOR NAME
+Daniel Michurov
 
 [View this project online](URL_FOR_THE_RUNNING_PROJECT)
 
