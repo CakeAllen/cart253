@@ -1,4 +1,4 @@
-# Art Jam
+# Art Jam: Defeating Dimitri, the Face.
 
 Daniel Michurov
 
@@ -9,7 +9,8 @@ Daniel Michurov
 My art jam project. I wasn't sure what to do in terms of it being unique so I decided that maybe making a very simple "boss fight" of sorts with my face being the enemy would be cool. 
 
 > Player can use mouse movements to control the player character, and use mouseclick to shoot towards where the mouse is pointing.
-> The boss, my face, will have a weak spot that opens and closes depending on when it's attacking. This gives the fight a bit of a risk reward thing. Players can damage the face while the weak spot is closed, but it won't be the ideal maximised damage.
+> The boss, my face, will have a weak spot that opens and closes depending on when it's attacking. This gives the fight a bit of a risk reward thing. Players can damage the face while the weak spot is closed, but it won't be the ideal maximised damage, but it's good chip damage.
+> It has a working HUD, displaying both the face's health bar, but also the players. Furthermore, there's also a game over screen if the player dies, and a victory screen if they defeat the face.
 
 ## Screenshot(s)
 
@@ -25,6 +26,8 @@ This bit should attribute any code, assets or other elements used taken from oth
 > - Programs used:
         - Visual Studio Code
         - Paint.NET
+
+> - I couldn't figure out how to do what I wanted on line 435, so I looked it up online and found this. [Here](https://editor.p5js.org/doubleshow/sketches/BJdU6tFSM)'s the link.
 
 ## License
 

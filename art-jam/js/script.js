@@ -7,12 +7,21 @@
 
 "use strict";
 
+// consts
 const lerpSpeed = 0.5;
 
+// HUD stuff
 let enableHUD = true;
 let enabledGameOverScreen = false;
 let gameOverTextSize = 30;
 let tryAgainTextSize = 25;
+
+// temp invincibility blinking
+let blinkIndex = 0;
+
+// images
+let heartContainer;
+let emptyHeart;
 
 let spawnProjectile = false;
 // this bool allows the smoother closing/opening of the eye (the weak spot).
@@ -69,7 +78,26 @@ let face =
         y: undefined,
         w: 450,
         h: 550,
-        colour: 'orange'
+        colour: 
+        {
+            r: 250,
+            g: 235,
+            b: 215
+        },
+
+        hair:
+        {
+            x: undefined,
+            y: undefined,
+            w: 500,
+            h: 550,
+            colour:
+            {
+            r: 125,
+            g: 50,
+            b: 0
+            }
+        }
     },
 
     weakSpot:
@@ -95,9 +123,10 @@ let projectile =
     acceleration: -0.05
 }
 
+// face' hp bar
 let hpBar =
 {
-    nameText: "The Face",
+    nameText: "Dimitri, the Face",
     // variables for the foreground portion of the health bar
     fill:
     {
@@ -119,7 +148,8 @@ let hpBar =
         y: undefined,
         w: undefined,
         h: 15,
-        colour: 75
+        colour: 75,
+        alpha: 100
     },
 }
 
@@ -142,12 +172,20 @@ function setup()
     // creates the canvas
     createCanvas(windowWidth, windowHeight);
     frameRate(60);
+
+    heartContainer = loadImage('./assets/images/heart_container.png');
+    emptyHeart = loadImage('./assets/images/empty_heart.png');
+
+    // allows for an initial position as the face will be on the move eventually.
+    face.appearance.x = windowWidth/2;
+    face.appearance.y = windowHeight/2;
 }
 
 function draw() 
 {
     // draws the background
     background(135, 206, 235);
+    drawBackgroundScenery();
 
     // draws the face
     drawFace();
@@ -243,7 +281,7 @@ function draw()
             text("Refresh to try again.", (windowWidth/2), ((windowHeight/2) + 150));
         }
     }
-
+    
     // COOLDOWNS
     player.combat.attackSpeed -= deltaTime;
     player.combat.tempInvincibility -= deltaTime;
@@ -264,6 +302,7 @@ function draw()
     // }
 }
 
+// player shoots a projectile on mouse click
 function mouseClicked()
 {
     // spawns projectile, after spawning one, the projectile goes on cooldown
@@ -276,13 +315,14 @@ function mouseClicked()
     }
 }
 
+// DEBUGGING
 function doubleClicked()
 {
     damagePlayer(face.combat.aPower);
 }
 
 // a function that draws a rectangle, made to save space
-function drawRect(hasStroke, strokeColour, strokeThickness, gray, rectColour, rectColourR, rectColourG, rectColourB, rectX, rectY, rectW, rectH)
+function drawRect(hasStroke, strokeColour, strokeThickness, gray, rectColour, rectAlpha, rectColourR, rectColourG, rectColourB, rectX, rectY, rectW, rectH)
 {
     push();
     if (!hasStroke)
@@ -296,7 +336,7 @@ function drawRect(hasStroke, strokeColour, strokeThickness, gray, rectColour, re
     }
     if (gray)
     {
-        fill(rectColour);
+        fill(rectColour, rectAlpha);
     }
     else
     {
@@ -306,6 +346,7 @@ function drawRect(hasStroke, strokeColour, strokeThickness, gray, rectColour, re
     pop()
 }
 
+// handles all the HUD stuff
 function handleHUD()
 {
     if (enableHUD)
@@ -316,6 +357,7 @@ function handleHUD()
     }
 }
 
+// draws the boss health bar
 function drawBossHealthBar()
 {
     // handles the position and size of the healthbar
@@ -340,41 +382,36 @@ function drawBossHealthBar()
     hpBar.fill.w = hpBar.background.w * hpBarFillWidth;
 
     // first handles the background
-    drawRect(false, 0, 0, true, hpBar.background.colour, 0, 0, 0, hpBar.background.x, hpBar.background.y, 
+    drawRect(false, 0, 0, true, hpBar.background.colour, hpBar.background.alpha, 0, 0, 0, hpBar.background.x, hpBar.background.y, 
         hpBar.background.w, hpBar.background.h);
     // then handles the fill
-    drawRect(false, 0, 0, false, undefined, hpBar.fill.colour.r, hpBar.fill.colour.g, hpBar.fill.colour.b, 
+    drawRect(false, 0, 0, false, undefined, undefined, hpBar.fill.colour.r, hpBar.fill.colour.g, hpBar.fill.colour.b, 
         hpBar.fill.x, hpBar.fill.y, hpBar.fill.w, hpBar.fill.h);
 }
 
+// draws the hearts of the player health HUD
 function drawPlayerHealth()
 {
-    let currentHearts = 50+(60*player.hp);
+    let currentHearts = 25+(70*player.hp);
 
-    for (let x = 50; x < currentHearts; x += 60)
+    for (let x = 25; x < currentHearts; x += 70)
     {
-        push();
-        noStroke();
-        fill('red');
-        circle(x, (windowHeight-50), 50);
-        pop();
+        image(heartContainer, x, (windowHeight-75));
     }
 }
 
+// draws the background of the player health HUD
 function drawMaxHealth()
 {
-    let maxHearts = 50+(60*player.maxHP);
+    let maxHearts = 25+(70*player.maxHP);
 
-    for (let x = 50; x < maxHearts; x += 60)
+    for (let x = 25; x < maxHearts; x += 70)
     {
-        push();
-        noStroke();
-        fill(255, 0, 0, 50);
-        circle(x, (windowHeight-50), 50);
-        pop();
+        image(emptyHeart, x, (windowHeight-75));
     }
 }
 
+// draws the player and handles the movement.
 function handleMovement()
 {
     if (player.appearance.canMove)
@@ -393,21 +430,21 @@ function drawPlayer()
     // get hit again.
     if (player.combat.tempInvincibility > 0)
     {
-        let flashIndex = 0;
-        if (flashIndex == 0)
+        blinkIndex += 10;
+
+        if(blinkIndex % 30 === 0)
         {
-            flashIndex += 1;
-            fill(255);
+            fill(200, 50);
         }
-        else if (flashIndex == 1)
+        else
         {
-            flashIndex -= 1;
             fill(0);
         }
     }
     else
     {
         fill(0);
+        blinkIndex = 0;
     }
 
     player.appearance.verticalMovement = constrain(mouseY, (windowHeight-(windowHeight*0.33)),windowHeight);
@@ -415,21 +452,96 @@ function drawPlayer()
     pop()
 }
 
+// draws the face.
 function drawFace()
 {
+    drawRestOfHair();
+
     // draws the foundation of the face
     push();
-    stroke(255);
+    stroke(face.appearance.colour.r-10, face.appearance.colour.g-10, face.appearance.colour.b-10);
     strokeWeight(5);
-    fill(face.appearance.colour);
-
-    face.appearance.x = windowWidth/2;
-    face.appearance.y = windowHeight/2;
-
+    fill(face.appearance.colour.r, face.appearance.colour.g, face.appearance.colour.b);
     ellipse(face.appearance.x, face.appearance.y, face.appearance.w, face.appearance.h);
+    pop();
+
+    // draws the more characteristic aspects of the face
+    drawHair();
+    drawMiddlePart();
+    // draw eyes
+    // draw mouth
+}
+
+// draws the face's hair
+function drawHair()
+{
+    push();
+    noStroke();
+    fill(face.appearance.hair.colour.r, face.appearance.hair.colour.g, face.appearance.hair.colour.b)
+
+    face.appearance.hair.x = face.appearance.x
+    face.appearance.hair.y = face.appearance.y-25;
+
+    arc(face.appearance.hair.x, face.appearance.hair.y, face.appearance.hair.w, face.appearance.hair.h, PI, 0);
     pop();
 }
 
+// draws a skin coloured triangle over the hair to simulate a middle part
+function drawMiddlePart()
+{
+    push();
+    noStroke();
+    fill(face.appearance.colour.r, face.appearance.colour.g, face.appearance.colour.b)
+
+    // you were right, triangles are kind of a pain...
+    triangle(face.appearance.x - 130, face.appearance.y - 20, face.appearance.x, face.appearance.y - 175, face.appearance.x + 130,
+     face.appearance.y - 20);
+    pop();
+}
+
+// draws the hair thats behind/to the side of the head
+function drawRestOfHair()
+{
+    push();
+    noStroke();
+    fill(face.appearance.hair.colour.r - 50, face.appearance.hair.colour.g - 50, face.appearance.hair.colour.b - 50)
+
+    face.appearance.hair.x = face.appearance.x
+    face.appearance.hair.y = face.appearance.y-25;
+
+    ellipse(face.appearance.hair.x, face.appearance.hair.y, face.appearance.hair.w);
+    pop();
+}
+
+// draws the regular eyes
+function drawEyes()
+{
+    
+}
+
+// draws the mouth... well kinda, it draws a weird looking goatee and makes it imply that there's a mouth there.
+function drawMouth()
+{
+
+}
+
+// handles the face's random movement
+function moveFace(status)
+{
+    // status means if it's true, then the face is on the move, if false, then it's stationary
+    if (status)
+    {
+        // move to a random location
+    }
+    // the eye will be open only when stationary, so to make it a bit more satisfying, the face will shake/shudder after getting hit in the 
+    // weak spot.
+    else
+    {
+        // stay put
+    }
+}
+
+// draws the weak spot, an eye
 function drawWeakSpot()
 {
     // draws the weak spot
@@ -444,12 +556,13 @@ function drawWeakSpot()
     pop();
 }
 
+// draws the eye lids of the weak spot that is visible when closed.
 function drawWeakSpotLids()
 {
     // draws the weak spot
     push();
     noStroke();
-    fill(215, 125, 0);
+    fill(face.appearance.colour.r-20, face.appearance.colour.g-20, face.appearance.colour.b-20);
 
     face.weakSpot.x = face.appearance.x;
     face.weakSpot.y = face.appearance.y - face.weakSpot.offsetFromCentre;
@@ -505,6 +618,7 @@ function closeWeakSpot()
     face.weakSpot.h = constrain(face.weakSpot.h, 2, 50);
 }
 
+// gets called when the player "dies"
 function gameOver()
 {
     cursor(ARROW);
@@ -512,4 +626,37 @@ function gameOver()
     player.combat.canShoot = false;
     enableHUD = false;
     enabledGameOverScreen = true;
+}
+
+// draws multiple clouds with a big sun in the background
+function drawBackgroundScenery()
+{
+    // draws a simple sun in the background
+    push();
+    stroke('yellow');
+    strokeWeight(100);
+    fill('orange');
+    ellipse((windowWidth/2), ((windowHeight/2)+50), 900);
+    pop();
+
+    // draws a bunch of clouds
+    drawCloud(350, 1250);
+    drawCloud(0,1100);
+    drawCloud(300, 750);
+
+    drawCloud(windowWidth-300, 1200);
+    drawCloud(windowWidth, 1150);
+    drawCloud(windowWidth-750, 500);
+    drawCloud(windowWidth-275, 800);
+}
+
+// draws a cloud based on the given parametres 
+function drawCloud(x, size)
+{
+    push();
+    stroke(200);
+    strokeWeight(50);
+    fill(255);
+    ellipse(x, windowHeight, size);
+    pop();
 }
