@@ -567,7 +567,7 @@ function drawRestOfHair()
 // draws the mouth... well kinda, it draws a weird looking goatee and makes it imply that there's a mouth there.
 function drawMouth()
 {
-
+    // circle at the bottom, rect in the middle and a squished triangle at the top. 
 }
 
 // handles the face's random movement
