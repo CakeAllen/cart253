@@ -2,7 +2,7 @@
  * Art Jam
  * Daniel Michurov
  * 
- * description here
+ * A simple boss fight between the player character and my face... kinda :^)
  */
 
 "use strict";
@@ -47,7 +47,6 @@ let player =
     appearance:
     {
         size: 75,
-        x: 0,
         speed: 0.5,
         verticalMovement: 0,
         canMove: true
@@ -67,7 +66,7 @@ let face =
         // kind of like a cooldown, starts at 1 so that the player doesn't get immediately surprised by an attack
         attackSpeed: 2,
         hit: false,
-        weakSpotOpen: false,
+        weakSpotOpen: true,
         weakSpotDamageMultiplier: 2.5,
         closedDamageMultiplier: 0.5
     },
@@ -83,6 +82,14 @@ let face =
             r: 250,
             g: 235,
             b: 215
+        },
+
+        pupils:
+        {
+            lX: undefined,
+            lY: undefined,
+            rX: undefined,
+            rY: undefined
         },
 
         hair:
@@ -105,8 +112,19 @@ let face =
         x: undefined,
         y: undefined,
         w: 100,
-        h: 2,
-        colour: 'yellow',
+        h: 50,
+        colour:
+        {
+            r: 201,
+            g: 58,
+            b: 58
+        },
+        pupil:
+        {
+            x: undefined,
+            y: undefined,
+            size: 25
+        },
         offsetFromCentre: 90
     }
 };
@@ -221,7 +239,8 @@ function draw()
     
     drawWeakSpotLids();
     drawWeakSpot();
-    
+    drawWeakSpotPupil();
+
     // handles player movement and draws the player character
     handleMovement();
 
@@ -468,8 +487,40 @@ function drawFace()
     // draws the more characteristic aspects of the face
     drawHair();
     drawMiddlePart();
-    // draw eyes
+    drawEyes();
+    drawPupils();
     // draw mouth
+}
+
+// draws the  whites of the eyes
+function drawEyes()
+{
+    push();
+    stroke(0);
+    strokeWeight(5);
+    fill(255);
+    arc(face.appearance.x - 100, face.appearance.y, 100, 100, 0, PI, CHORD);
+    arc(face.appearance.x + 100, face.appearance.y, 100, 100, 0, PI, CHORD);
+    pop();
+}
+
+function drawPupils()
+{
+    push();
+    stroke('brown');
+    strokeWeight(5);
+    fill(0);
+
+    // these handle the movement of the pupils
+    face.appearance.pupils.lX = map(mouseX, 0, windowWidth, (face.appearance.x - 100) - 20, (face.appearance.x - 100) + 20);
+    face.appearance.pupils.lY = map(player.appearance.verticalMovement, 0, windowHeight, face.appearance.y - 7.5, face.appearance.y + 7.5);
+    ellipse(face.appearance.pupils.lX, face.appearance.pupils.lY + 25, 25);
+
+    face.appearance.pupils.rX = map(mouseX, 0, windowWidth, (face.appearance.x + 100) - 20, (face.appearance.x + 100) + 20);
+    face.appearance.pupils.rY = map(player.appearance.verticalMovement, 0, windowHeight, face.appearance.y - 7.5, face.appearance.y + 7.5);
+    ellipse(face.appearance.pupils.rX, face.appearance.pupils.rY + 25, 25);
+
+    pop();
 }
 
 // draws the face's hair
@@ -513,12 +564,6 @@ function drawRestOfHair()
     pop();
 }
 
-// draws the regular eyes
-function drawEyes()
-{
-    
-}
-
 // draws the mouth... well kinda, it draws a weird looking goatee and makes it imply that there's a mouth there.
 function drawMouth()
 {
@@ -546,14 +591,32 @@ function drawWeakSpot()
 {
     // draws the weak spot
     push();
-    noStroke();
-    fill(face.weakSpot.colour);
+    stroke('orange');
+    strokeWeight(5);
+    fill(face.weakSpot.colour.r, face.weakSpot.colour.g, face.weakSpot.colour.b);
 
     face.weakSpot.x = face.appearance.x;
     face.weakSpot.y = face.appearance.y - face.weakSpot.offsetFromCentre;
 
     ellipse(face.weakSpot.x, face.weakSpot.y, face.weakSpot.w, face.weakSpot.h);
     pop();
+}
+
+function drawWeakSpotPupil()
+{
+    if(face.combat.weakSpotOpen)
+    {
+        push();
+        stroke(face.weakSpot.colour.r+15, face.weakSpot.colour.g, face.weakSpot.colour.b);
+        strokeWeight(5);
+        fill('red')
+
+        face.weakSpot.pupil.x = map(mouseX, 0, windowWidth, face.weakSpot.x - 30, face.weakSpot.x + 30);
+        face.weakSpot.pupil.y = map(player.appearance.verticalMovement, 0, windowHeight, face.weakSpot.y - 7.5, face.weakSpot.y + 7.5);
+
+        ellipse(face.weakSpot.pupil.x, face.weakSpot.pupil.y, face.weakSpot.pupil.size);
+        pop();
+    }
 }
 
 // draws the eye lids of the weak spot that is visible when closed.
@@ -609,6 +672,8 @@ function openWeakSpot()
 {
     face.weakSpot.h += 5;
     face.weakSpot.h = constrain(face.weakSpot.h, 2, 50);
+    face.weakSpot.pupil.size += 2.5;
+    face.weakSpot.pupil.size = constrain(face.weakSpot.h, 0, 25);
 }
 
 // closes the eye
@@ -616,6 +681,8 @@ function closeWeakSpot()
 {
     face.weakSpot.h -= 5;
     face.weakSpot.h = constrain(face.weakSpot.h, 2, 50);
+    face.weakSpot.pupil.size -= 7.5;
+    face.weakSpot.pupil.size = constrain(face.weakSpot.h, 0, 25);
 }
 
 // gets called when the player "dies"
