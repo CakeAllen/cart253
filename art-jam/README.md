@@ -12,7 +12,7 @@ My art jam project. I wasn't sure what to do in terms of it being unique so I de
 > The boss, my face, will have a weak spot that opens and closes depending on when it's attacking. This gives the fight a bit of a risk reward thing. Players can damage the face while the weak spot is closed, but it won't be the ideal maximised damage, but it's good chip damage.
 > It has a working HUD, displaying both the face's health bar, but also the players. Furthermore, there's also a game over screen if the player dies, and a victory screen if they defeat the face.
 
-I think all the new functions I've used for this project are the mouseClicked function, the map function and for loops.
+I think all the new functions I've used for this project are the mouseClicked function, the dist function, the map function and for loops.
 
 ## Screenshot(s)
 

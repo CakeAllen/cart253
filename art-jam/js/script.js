@@ -481,6 +481,11 @@ function drawFace()
     stroke(face.appearance.colour.r-10, face.appearance.colour.g-10, face.appearance.colour.b-10);
     strokeWeight(5);
     fill(face.appearance.colour.r, face.appearance.colour.g, face.appearance.colour.b);
+
+    // DEBUGGING
+    // face.appearance.x += 1;
+    // face.appearance.y += 1;
+
     ellipse(face.appearance.x, face.appearance.y, face.appearance.w, face.appearance.h);
     pop();
 
@@ -489,7 +494,7 @@ function drawFace()
     drawMiddlePart();
     drawEyes();
     drawPupils();
-    // draw mouth
+    drawMouth();
 }
 
 // draws the  whites of the eyes
@@ -528,7 +533,7 @@ function drawHair()
 {
     push();
     noStroke();
-    fill(face.appearance.hair.colour.r, face.appearance.hair.colour.g, face.appearance.hair.colour.b)
+    fill(face.appearance.hair.colour.r, face.appearance.hair.colour.g, face.appearance.hair.colour.b);
 
     face.appearance.hair.x = face.appearance.x
     face.appearance.hair.y = face.appearance.y-25;
@@ -567,7 +572,32 @@ function drawRestOfHair()
 // draws the mouth... well kinda, it draws a weird looking goatee and makes it imply that there's a mouth there.
 function drawMouth()
 {
-    // circle at the bottom, rect in the middle and a squished triangle at the top. 
+    // draws the facial hair
+    push();
+    noStroke();
+    fill(face.appearance.hair.colour.r - 10, face.appearance.hair.colour.g - 10, face.appearance.hair.colour.b - 10);
+    // draws the moustache part
+    triangle(face.appearance.x - 90, face.appearance.y + 160, face.appearance.x, face.appearance.y + 130, 
+        face.appearance.x + 90, face.appearance.y + 160);
+    // draws the body of the facial hair
+    rect(face.appearance.x - 90, face.appearance.y + 159.5, dist(face.appearance.x - 90, face.appearance.y + 150, face.appearance.x + 90, 
+        face.appearance.y + 150), (dist(face.appearance.x - 90, face.appearance.y + 150, face.appearance.x + 90, face.appearance.y + 150)*0.45));
+    // draws the chin portion of the facial hair
+    ellipse(face.appearance.x, face.appearance.y + 240, dist(face.appearance.x - 90, face.appearance.y + 150, face.appearance.x + 90, 
+        face.appearance.y + 150), 75);
+    pop();
+
+    //draws the parts where there isnt supposed to be hair using three triangles
+    push();
+    noStroke();
+    fill(face.appearance.colour.r, face.appearance.colour.g, face.appearance.colour.b);
+    triangle(face.appearance.x - 90, face.appearance.y + 185, face.appearance.x, face.appearance.y + 140, 
+        face.appearance.x + 90, face.appearance.y + 185);
+    triangle(face.appearance.x - 90, face.appearance.y + 184.5, face.appearance.x - 10, face.appearance.y + 184.5, 
+        face.appearance.x - 30, face.appearance.y + 240);
+    triangle(face.appearance.x + 90, face.appearance.y + 184.5, face.appearance.x + 10, face.appearance.y + 184.5, 
+        face.appearance.x + 30, face.appearance.y + 240);  
+    pop();    
 }
 
 // handles the face's random movement
