@@ -15,13 +15,13 @@ Art Jam Response
 
   On the code side, I'm a big fan of having all of the different colours be declared in its own object, rather than sticking those variables into whatever it is colouring's object. I might start doing that myself. Otherwise, I really like that the draw function is clean and organised into different functions. However, the drawSpider() function could use a bit of cleaning up. Since most of it is just the same code with 6 parametres pasted over and over, I'd have made a separate function something like:
 
-  function drawLeg(vX, vY, qX1, qY1, qX2, qY2)
-  {
-      beginShape();
-      vertex(vX, vY);
-      quadraticVertex(qX1, qY1, qX2, qY2);
-      endShape();
-  }
+  function drawLeg(vX, vY, qX1, qY1, qX2, qY2)<br>
+  {<br>
+      beginShape();<br>
+      vertex(vX, vY);<br>
+      quadraticVertex(qX1, qY1, qX2, qY2);<br>
+      endShape();<br>
+  }<br>
       
   The parametre names aren't great, but that's the idea. It'll just make the code a bit cleaner and easier to follow. Otherwise, very well nice project I enjoyed this one a lot!
 
