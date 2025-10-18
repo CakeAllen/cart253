@@ -1,35 +1,41 @@
-# TITLE OF PROJECT
+# Ideas for Mod Jam
 
-AUTHOR NAME
+1. **Add difficulty options.** (i was thinking of having maybe 3 difficulty options, easy being an everlasting round where you can just casually try to eat flies without having to think, medium where there's a small element of challenge where there are now things that you shouldn't eat, like a dirty boot or a piece of plastic. On hard mode, there could be hostile insects that if you dont eat them before they get to you, you'll take damage.)
 
-[View this project online](URL_FOR_THE_RUNNING_PROJECT)
+2. **Something like a stage system?** (no clue what to call it, but think mario where there's world 1-level 1 for example. obviously for the mod jam it would be better to have only maybe like 3 levels and 1 world, but it'd be kinda cool. the different levels would have their own unique challenge. probably too ambitious)
 
-## Description
+3.  **Adding powerup items in the mix** (have some powerup items that give you different buffs (or maybe even debuffs for the funsies) once you grab them. for example one buff could make the tongue bigger making it easier to grab flies, or a speed boost to the tongue. needs some thinking)
 
-This description should help the reader understand what the program is, anything they should know to be able to experience it (controls, special features, etc.), and what the desired user experience is. For example:
+4. **Give the flies a different look via an image.** (instead of just a circle, they can have a png of a fly to make it look a bit better and give a visual distinction from other potential elements.)
 
-> *The Mayor of Clown Town* is a simulator experience that allows the user to control a small town populated entirely by clowns.
+5. **Add a pause button.** (sometimes life gets busy and a pause button could be cool. not fully sure how to implement this, but i could find a way probably.)
 
-> The experience is controlled via the mouse, with left click selecting a clown and bringing up a menu of options such as "slip of banana peel" or "get into impossible capacious clown-car."
+6. **if adding a stage system, maybe have a story to go along with it.** (adding a very simple story to make it a bit more interesting, maybe a small journey where the frog needs to go from point A to B to maybe rescue someone.)
 
-> The project is meant to give the user a sense of what it would be the mayor of a town of clowns, eventually getting the sense that clowns are not taking their civic duties seriously.
+7. **really dumb idea, but giving the game some RPG elements.** (most definitely not going to do this, but could be fun if i figure out the right stuff. this would mean at the very least adding a level system with an experience bar where you get some XP for every fly you eat. every level(or maybe every few levels) you get to upgrade some kind of stat.)
 
-## Screenshot(s)
+8. **Again with the stage system, it could be easy to add checkpoints between every few stages.** (probably only a useful thing to add if making an RPG to be honest. This could be where the frog could use his level up points to gain stats.)
 
-This bit should have some images of the program running so that the reader has a sense of what it looks like. For example:
+9. **give the sword the additional option of swinging a sword in front of him** (lets say the hostile flies are too close and the tongue is too slow, this adds a faster option to defeat the flies. However, it comes at the cost of it not granting the frog XP.)
 
-> ![Image of a clown face](./assets/images/clown.png)
+10. **add magic and if the frog swallows a magical book, he gets those powers for a few seconds.** (so for example, if the frog swallows a fireball book, it can shoot fireballs.)
 
-## Attribution
+11. **add obstacles that move along the X axis that act as a wall for the frog's tongue.** (there could be a pattern of walls that spawn every so often that move somewhat slow. they block the tongue from going further past that point.)
 
-This bit should attribute any code, assets or other elements used taken from other sources. For example:
+12. **make the fly move with the tongue** (when the tongue catches a fly, instead of it disappearing, it gets dragged along with the tongue back to the frog.)
 
-> - This project uses [p5.js](https://p5js.org).
-> - The clown image is a capture of the clown from the Apple emoji character set.
-> - The barking sound effect is "single dog bark 1" by crazymonke9 from freesound.org: https://freesound.org/people/crazymonke9/sounds/418107/
+13. **add a random event, called maybe the blood moon or something, that spawns not only maybe flies, but also big flies.** (the big flies give extra XP (if using the RPG system.) The whole look of the game will look a bit different during it, but it only lasts maybe 30 seconds or so.)
 
-## License
+14. **eating flies heals the frog** (if using a health system, whenever the frog swallow a fly, it heals it for a little bit.)
 
-This bit should include the license you want to apply to your work. For example:
+15. **make pixel art for every element of the game** (recently purchased Aseprite. Maybe instead of scouring for pngs, I could make some simple custom assets instead. probably too ambitious because I am not good at art at all)
 
-> This project is licensed under a Creative Commons Attribution ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.en)) license with the exception of libraries and other components with their own licenses.
+16. **add more mobility to the frog** (instead of being confined on the X axis, we could zoom the game out a bit and give the frog more mobility.)
+
+17. **add WASD movement** (make the frog move with WASD on the keyboard)
+
+18. **rotate the frog to the direction of the mouse** (Would be great with the WASD movement, the frog rotates with where the mouse is pointing. not sure how to do this in js, but i'm sure it's possible with some blood, sweat and tears. unless there's a sort of "look at" function somewhere. probably too ambitious)
+
+19. **make the frog rotate based on where it's moving** (instead of the mouse, the frog would just rotate to where it's moving. definitely the much easier option.)
+
+20. **add a jump button** (not only is jumping fun, but maybe there could be stages where there's a pit of somekind that stretches across the screen and the only way to cross it is by jumping.)
