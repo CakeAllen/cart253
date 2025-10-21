@@ -9,7 +9,7 @@
 "use strict";
 
 // if false, it makes the game easier. if true, it makes it harder
-let difficulty = false;
+let difficulty = true;
 // the score, it adds up by 1 every time a ball is bounced
 let score = 0;
 // cooldown for adding score, so that way you can't cheese it once one ball starts to 
@@ -74,6 +74,7 @@ function draw() {
     background("#87ceeb");
 
     drawScoreText();
+    drawInstructionText();
     
     moveBall(ball);
     moveBall(ball2);
@@ -99,7 +100,17 @@ function drawScoreText()
 {
     textSize(25);
     fill(0);
-    text("Score: " + score, width - 130, height - 250);
+    text("Score: " + score, width - 130, 35);
+}
+
+// draws the text that tells the user that clicking the mouse changes the game a bit
+// as it's not very obvious without it.
+function drawInstructionText()
+{
+    textSize(15);
+    fill(100);
+    text("Clicking the mouse button gives you an additional paddle",
+         20, 30);
 }
 
 // this just checks the difficulty and spawns/despawns the second paddle and changes the way
