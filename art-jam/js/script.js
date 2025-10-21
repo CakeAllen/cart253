@@ -26,6 +26,8 @@ let emptyHeart;
 let spawnProjectile = false;
 // this bool allows the smoother closing/opening of the eye (the weak spot).
 let handleWeakSpot = false;
+let handleHorizLasers = false;
+let handleVerticalLasers = false;
 
 let player =
 {
@@ -36,7 +38,7 @@ let player =
     combat:
     {
         // attack power, i.e. how much damage this actor causes
-        aPower: 10,
+        aPower: 40,
         // kind of like a cooldown, starts at 0 because the player should be able to attack as soon as they start
         attackSpeed: 0,
         tempInvincibility: 0,
@@ -64,11 +66,15 @@ let face =
         // attack power, i.e. how much damage this actor causes
         aPower: 1,
         // kind of like a cooldown, starts at 1 so that the player doesn't get immediately surprised by an attack
-        attackSpeed: 2,
+        attackSpeed: 750,
         hit: false,
         weakSpotOpen: true,
         weakSpotDamageMultiplier: 2.5,
-        closedDamageMultiplier: 0.5
+        closedDamageMultiplier: 0.5,
+        attack: false,
+        patternIndex: 0,
+        move: false,
+        sideNumber: undefined
     },
 
     appearance:
@@ -129,6 +135,34 @@ let face =
     }
 };
 
+// has all variables needed for the horizontal and vertical lasers.
+let laser =
+{
+    horizontal:
+    {
+        x: undefined,
+        y: undefined,
+        w: undefined,
+        h: 10, 
+    },
+
+    vertical:
+    {
+        x: undefined,
+        y: undefined,
+        w: 10,
+        h: undefined,
+    },
+    
+    colour:
+    {
+        r: 255,
+        g: 0,
+        b: 0,
+        a: 255
+    }
+}
+
 let projectile =
 {
     x: undefined,
@@ -144,7 +178,7 @@ let projectile =
 // face' hp bar
 let hpBar =
 {
-    nameText: "Dimitri, the Face",
+    nameText: "Daniel, the Face",
     // variables for the foreground portion of the health bar
     fill:
     {
@@ -205,9 +239,12 @@ function draw()
     background(135, 206, 235);
     drawBackgroundScenery();
 
-    // draws the face
-    drawFace();
-
+    if (face.hp > 0)
+    {
+        // draws the face if the boss is still alive
+        drawFace();
+    }
+    
     if (spawnProjectile && player.combat.canShoot)
     {
         // draws the projectile
@@ -236,10 +273,14 @@ function draw()
             face.combat.hit = false;
         }
     }
-    
-    drawWeakSpotLids();
-    drawWeakSpot();
-    drawWeakSpotPupil();
+
+    // draws the weak spot if the boss is still alive.
+    if (face.hp > 0)
+    {
+        drawWeakSpotLids();
+        drawWeakSpot();
+        drawWeakSpotPupil();
+    }
 
     // handles player movement and draws the player character
     handleMovement();
@@ -267,27 +308,59 @@ function draw()
         }
     }
 
+    // handles boss' attacks
+    // if (face.combat.attackSpeed <= 0)
+    // {
+    //     if (face.combat.sideNumber == undefined)
+    //     {
+    //         // gets a random number between 0 and 10, will be important later
+    //         face.combat.sideNumber = random(0, 10);
+    //         face.combat.move = true;
+    //     }
+    //     // moveFace();
+    //     face.combat.attack = true;
+    //     handleBossAttacks();
+    // }
+
     // draws the HUD
     handleHUD();
     cursor(CROSS);
     
+    // if (handleHorizLasers)
+    // {
+    //     push();
+    //     stroke('orange');
+    //     strokeWeight(2);
+    //     fill(laser.colour.r, laser.colour.g, laser.colour.b);
+    //     rect(0, player.appearance.verticalMovement, windowWidth, laser.horizontal.h);
+    //     pop();
+    // }
+
+    // if (handleVerticalLasers)
+    // {
+    //     push();
+    //     stroke('orange');
+    //     strokeWeight(2);
+    //     fill(laser.colour.r, laser.colour.g, laser.colour.b);
+    //     rect(mouseX, 0, laser.vertical.w, windowHeight);
+    //     pop();
+    // }
+
     if (enabledGameOverScreen)
     {
-
-
         // makes the game over text grow over time
         gameOverTextSize += 1;
-        gameOverTextSize = constrain(gameOverTextSize, 30, 150);
+        gameOverTextSize = constrain(gameOverTextSize, 30, 90);
         
         textSize(gameOverTextSize);
         fill('red');
         stroke(255);
         strokeWeight(5);
-        textAlign(CENTER);
-        text("Game Over", (windowWidth/2), (windowHeight/2));
+        textAlign(CENTER, CENTER);
+        text("Game Over", 275, 75);
 
         // adds a line of text that says the player needs to refresh to try again after the game over text has gotten big enough
-        if (gameOverTextSize >= 135)
+        if (gameOverTextSize >= 85)
         {
             tryAgainTextSize += 0.5;
             tryAgainTextSize = constrain(tryAgainTextSize, 25, 30);
@@ -297,7 +370,7 @@ function draw()
             stroke(0);
             strokeWeight(3);
             textAlign(CENTER);
-            text("Refresh to try again.", (windowWidth/2), ((windowHeight/2) + 150));
+            text("Refresh to try again.", 275, 150);
         }
     }
     
@@ -370,10 +443,39 @@ function handleHUD()
 {
     if (enableHUD)
     {
-        drawBossHealthBar();
-        drawMaxHealth();
-        drawPlayerHealth();
+        if (face.hp > 0)
+        {
+            drawBossHealthBar();
+            drawMaxHealth();
+            drawPlayerHealth();
+        }
+        else
+        {
+            player.combat.canShoot = false;
+        }
+        
+        drawUnfortunateText();
     }
+}
+
+function drawUnfortunateText()
+{
+    textSize(25);
+    fill(100, 200);
+    noStroke();
+    textAlign(CENTER, CENTER)
+
+    if (face.hp > 0)
+    {
+        text("Shoot with mouse click.   You can double click the mouse button to see that the damage system works", 
+    (windowWidth - 350), (windowHeight - 100), 320)
+    } 
+    else
+    {
+        text("You win!", 
+    (windowWidth - 350), (windowHeight - 100), 320)
+    }
+    
 }
 
 // draws the boss health bar
@@ -393,6 +495,7 @@ function drawBossHealthBar()
     fill(255);
     stroke(0);
     strokeWeight(4);
+    textAlign(LEFT)
     text(hpBar.nameText, (hpBar.background.x + 25), (hpBar.background.y - 15))
 
     // calculates the percentage of the bar based on the boss' current health.
@@ -481,6 +584,11 @@ function drawFace()
     stroke(face.appearance.colour.r-10, face.appearance.colour.g-10, face.appearance.colour.b-10);
     strokeWeight(5);
     fill(face.appearance.colour.r, face.appearance.colour.g, face.appearance.colour.b);
+
+    // DEBUGGING
+    // face.appearance.x += 1;
+    // face.appearance.y += 1;
+
     ellipse(face.appearance.x, face.appearance.y, face.appearance.w, face.appearance.h);
     pop();
 
@@ -489,7 +597,7 @@ function drawFace()
     drawMiddlePart();
     drawEyes();
     drawPupils();
-    // draw mouth
+    drawMouth();
 }
 
 // draws the  whites of the eyes
@@ -528,7 +636,7 @@ function drawHair()
 {
     push();
     noStroke();
-    fill(face.appearance.hair.colour.r, face.appearance.hair.colour.g, face.appearance.hair.colour.b)
+    fill(face.appearance.hair.colour.r, face.appearance.hair.colour.g, face.appearance.hair.colour.b);
 
     face.appearance.hair.x = face.appearance.x
     face.appearance.hair.y = face.appearance.y-25;
@@ -567,23 +675,199 @@ function drawRestOfHair()
 // draws the mouth... well kinda, it draws a weird looking goatee and makes it imply that there's a mouth there.
 function drawMouth()
 {
-    // circle at the bottom, rect in the middle and a squished triangle at the top. 
+    // draws the facial hair
+    push();
+    noStroke();
+    fill(face.appearance.hair.colour.r - 10, face.appearance.hair.colour.g - 10, face.appearance.hair.colour.b - 10);
+    // draws the moustache part
+    triangle(face.appearance.x - 90, face.appearance.y + 160, face.appearance.x, face.appearance.y + 130, 
+        face.appearance.x + 90, face.appearance.y + 160);
+    // draws the body of the facial hair
+    rect(face.appearance.x - 90, face.appearance.y + 159.5, dist(face.appearance.x - 90, face.appearance.y + 150, face.appearance.x + 90, 
+        face.appearance.y + 150), (dist(face.appearance.x - 90, face.appearance.y + 150, face.appearance.x + 90, face.appearance.y + 150)*0.45));
+    // draws the chin portion of the facial hair
+    ellipse(face.appearance.x, face.appearance.y + 240, dist(face.appearance.x - 90, face.appearance.y + 150, face.appearance.x + 90, 
+        face.appearance.y + 150), 75);
+    pop();
+
+    //draws the parts where there isnt supposed to be hair using three triangles
+    push();
+    noStroke();
+    fill(face.appearance.colour.r, face.appearance.colour.g, face.appearance.colour.b);
+    triangle(face.appearance.x - 90, face.appearance.y + 185, face.appearance.x, face.appearance.y + 140, 
+        face.appearance.x + 90, face.appearance.y + 185);
+    triangle(face.appearance.x - 90, face.appearance.y + 184.5, face.appearance.x - 10, face.appearance.y + 184.5, 
+        face.appearance.x - 30, face.appearance.y + 240);
+    triangle(face.appearance.x + 90, face.appearance.y + 184.5, face.appearance.x + 10, face.appearance.y + 184.5, 
+        face.appearance.x + 30, face.appearance.y + 240);  
+    pop();    
 }
 
 // handles the face's random movement
-function moveFace(status)
+// function moveFace()
+// {
+//     // face.combat.move means if it's true, then the face is on the move, if false, then the face should stop and attack
+//     if (face.combat.move)
+//     {
+//         // determines which way to move depending on the pattern index, one way to predict what attack he's going to use is by seeing where he is 
+//         // going.
+
+//         switch(face.combat.patternIndex)
+//         {
+//             case 0:
+//                 // moves to the very centre
+//                 moveToPosition(true);
+
+//                 break;
+//             case 1:
+//                 // moves towards one of the sides of the screen
+//                 moveToPosition(false);
+
+//                 break;
+//             case 2:
+//                 // here he may go wherever
+//                 // this variable just chooses at random whether itll go to the centre or if it will move to the side
+//                 let i = random(0,1);
+//                 // the switch case reads i and calls the right function.
+//                 switch(i)
+//                 {
+//                     case 0:
+//                         moveToPosition(true);
+//                         break;
+//                     case 1:
+//                         moveToPosition(false);
+//                         break;
+//                 }
+
+//                 break;
+//         }
+//     }
+//     // the eye will be open only when stationary, so to make it a bit more satisfying, the face will shake/shudder after getting hit in the 
+//     // weak spot.
+//     else
+//     {
+//         face.combat.attack = true;
+//         handleBossAttacks();
+//     }
+// }
+
+// function moveToPosition(index)
+// {
+//     if (index)
+//     {
+//         // checks to see where the face is and moves it to the centre.
+//         if (face.appearance.x < windowWidth/2)
+//         {
+//             face.appearance.x += 1;
+//             face.appearance.x = constrain(face.appearance.x, 0, windowWidth/2);
+//         }
+//         else if (face.appearance.x > windowWidth/2)
+//         {
+//             face.appearance.x -= 1;
+//             face.appearance.x = constrain(face.appearance.x, windowWidth/2, windowWidth);
+//         }
+//         else if (face.appearance.x == windowWidth/2)
+//         {
+//             face.combat.move = false;
+//         }
+//     }
+//     else
+//     {
+//         // makes the face move to either the left (if i is 0) or right (if i is 1)
+
+//         if (face.combat.sideNumber < 0.5)
+//         {
+//             if (face.appearance.x < (windowWidth * 0.25))
+//             {
+//                 face.appearance.x += 1;
+//                 face.appearance.x = constrain(face.appearance.x, 0, (windowWidth * 0.25));
+//             }
+//             else if (face.appearance.x > (windowWidth * 0.25))
+//             {
+//                 face.appearance.x -= 1;
+//                 face.appearance.x = constrain(face.appearance.x, (windowWidth * 0.25), windowWidth);
+//             }
+//             else if (face.appearance.x == (windowWidth * 0.25))
+//             {
+//                 face.combat.move = false;
+//             }
+//         }
+//         else
+//         {
+//             if (face.appearance.x < (windowWidth * 0.75))
+//             {
+//                 face.appearance.x += 1;
+//                 face.appearance.x = constrain(face.appearance.x, 0, (windowWidth * 0.75));
+//             }
+//             else if (face.appearance.x > (windowWidth * 0.75))
+//             {
+//                 face.appearance.x -= 1;
+//                 face.appearance.x = constrain(face.appearance.x, (windowWidth * 0.75), windowWidth);
+//             }
+//             else if (face.appearance.x == (windowWidth * 0.75))
+//             {
+//                 face.combat.move = false;
+//             }
+//         }
+//     }
+// }
+
+// handles the boss' attacks. basically, it'll determine which of the 2 attacks to do(or do both at the same time, which can happen
+//  when the boss' health is below one third to simulate desparation.)
+function handleBossAttacks()
 {
-    // status means if it's true, then the face is on the move, if false, then it's stationary
-    if (status)
+    
+    if (face.combat.attack)
     {
-        // move to a random location
+        console.log(face.combat.patternIndex)
+        switch(face.combat.patternIndex)
+        {
+            case 0:
+                // attack 1
+                
+                handleWeakSpot = true;
+                attack1();
+                break;
+            case 1:
+                // attack 2
+                handleWeakSpot = true;
+                attack2();
+                break;
+            case 2:
+                // both of the above attacks at the same time
+                handleWeakSpot = true;
+                attack3();
+                break;
+        }
     }
-    // the eye will be open only when stationary, so to make it a bit more satisfying, the face will shake/shudder after getting hit in the 
-    // weak spot.
-    else
-    {
-        // stay put
-    }
+}
+
+function attack1()
+{
+    face.combat.attack = false;
+    handleHorizLasers = true;
+    face.combat.patternIndex += 1;
+}
+
+function attack2()
+{   
+    face.combat.attack = false;
+    handleVerticalLasers = true;
+    face.combat.patternIndex += 1;
+}
+
+function attack3()
+{
+    face.combat.attack = false;   
+    handleVerticalLasers = true;
+    handleHorizLasers = true;
+    face.combat.patternIndex = -1;
+}
+
+// simple function that handles the end of an attack, which allows the 
+function endAttack()
+{
+    face.combat.attackSpeed = 750;
 }
 
 // draws the weak spot, an eye
@@ -672,6 +956,7 @@ function openWeakSpot()
 {
     face.weakSpot.h += 5;
     face.weakSpot.h = constrain(face.weakSpot.h, 2, 50);
+    
     face.weakSpot.pupil.size += 2.5;
     face.weakSpot.pupil.size = constrain(face.weakSpot.h, 0, 25);
 }
