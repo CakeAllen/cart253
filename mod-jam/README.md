@@ -7,3 +7,11 @@ A game about catching flies.
 - [Ideas](./ideas.md)
 - [Planning](./planning.md)
 - [Pseudocode](./pseudocode.md)
+
+
+# Features
+- Has a title screen with a help menu.
+- The frog can starve if not enough flies have been eaten.
+- 
+- 
+- 
