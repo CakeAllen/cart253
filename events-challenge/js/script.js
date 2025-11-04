@@ -18,7 +18,6 @@ let gameOver = false;
  */
 function setup() {
   createCanvas(400, 400);
-
   handleInputs();
 }
 
