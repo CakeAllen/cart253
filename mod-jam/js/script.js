@@ -924,7 +924,7 @@ function keyPressed(event)
                 break;
             // if on the title screen the user presses enter (keycode 13), it will start the game.
             case 13:
-                if (canContinue)
+                if (canContinue && !helpScreenEnabled)
                 {
                     titleScreenEnabled = false;
                     break;
