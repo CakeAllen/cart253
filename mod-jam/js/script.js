@@ -512,8 +512,11 @@ function moveFly() {
     // Handle the fly going off the canvas
     if (fly.x > width) {
 
-        // if the frog lets flies escape, he gets more hungry
-        frogStatus.hunger += 10;
+        if (!runeDrop)
+        {
+            // if the frog lets flies escape, he gets more hungry
+            frogStatus.hunger += 10;
+        }
 
         resetFly();
     }
