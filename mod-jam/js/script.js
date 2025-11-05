@@ -1,13 +1,13 @@
 /**
- * Frogfrogfrog
- * Pippin Barr
+ * Dark Flies
+ * Pippin Barr (for the base game) & Daniel Michurov
  * 
- * A game of catching flies with your frog-tongue
+ * A game about catching runes with a side of catching flies to not go hungry. Collect the 5 runes that spell out DECAY and win. Beware of your hunger metre!
  * 
  * Instructions:
  * - Move the frog with your mouse
  * - Click to launch the tongue
- * - Catch flies
+ * - Catch flies & runes
  * 
  * Made with p5
  * https://p5js.org/
@@ -42,13 +42,28 @@ const fly = {
     x: 0,
     y: 200, // Will be random
     size: 13,
-    speed: 3
+    minSpeed: 2,
+    maxSpeed: 3
 };
 
 let titleScreenEnabled = true;
 let canContinue = true;
 let helpScreenEnabled = false;
 let gameOver = false;
+let gameWin = false;
+
+let runeArray = [];
+let runeDrop = false;
+let randomLetter = undefined;
+let winCon = 0;
+
+// bools for each letter. i do not like this solution one bit, but nothing
+// else has worked for me so far.
+let hasD = false;
+let hasE = false;
+let hasC = false;
+let hasA = false;
+let hasY = false;
 
 let frogStatus =
 {
@@ -117,9 +132,9 @@ let frogStamina =
         fill:
         {
             // colour
-            r: 11,
-            g: 161,
-            b: 34,
+            r: 33,
+            g: 135,
+            b: 181,
 
             // position
             x: 25,
@@ -145,6 +160,12 @@ function setup() {
 function draw() {
     if (!titleScreenEnabled)
     {
+        if (gameWin)
+        {
+            handleWinScreen();
+            return;
+        }
+        
         if (!gameOver)
         {
             frogGame();
@@ -170,11 +191,24 @@ function titleScreen()
 {
     drawBackground(true);
 
-    simpleCenteredText(75, 255, 'DARK FLY', width/2, (height/2) - 25);
+    simpleCenteredText(75, 255, 'DARK FLIES', width/2, (height/2) - 25);
     
     simpleCenteredText(20, 200, 'Press Enter to start', width/2, (height/4*2.75));
 
     simpleCenteredText(20, 200, 'Press Spacebar for help', width/2, (height/4*3.25));
+}
+
+function handleWinScreen()
+{
+    drawBackground(true);
+
+    simpleCenteredText(60, 'teal', 'RUNES FOUND', width/2, height/2 - 25);
+
+    simpleCenteredText(20, 200, 'You have found all the runes. Congratulations.', width/2, (height/4*2.75));
+
+    simpleCenteredText(20, 200, 'Press Enter to go back to main menu', width/2, (height/4*3.25));
+
+    displayRunesForWinScreen();
 }
 
 // draws the help screen.
@@ -182,7 +216,7 @@ function helpScreen()
 {
     drawBackground(true);
 
-    simpleCenteredText(25, 255, 'HELP', width/2, 25);
+    simpleCenteredText(25, 'teal', 'HELP', width/2, 50);
     
     simpleCenteredText(20, 255, 'Move the frog side to side with mouse cursor', width/2, (height/4));
 
@@ -192,9 +226,9 @@ function helpScreen()
 
     simpleCenteredText(20, 255, 'If you let a fly escape, it will make the frog hungrier so beware!', width/2, (height/4*2.5)); 
 
-    simpleCenteredText(20, 255, 'You were given the task to clear the graveyard of the pesky flies.', width/2, (height/4*3)); 
+    simpleCenteredText(20, 'teal', 'You were given the task to find the 5 runes that spell out DECAY.', width/2, (height/4*3)); 
 
-    simpleCenteredText(17.5, 255, 'Press the left mouse button to go back to main menu', width/2, (height/4*3.75)); 
+    simpleCenteredText(17.5, 200, 'Press the left mouse button to go back to main menu', width/2, (height/4*3.75)); 
 }
 
 function handleGameOverScreen()
@@ -241,7 +275,16 @@ function frogGame()
 
     drawBackground();
     moveFly();
-    drawFly();
+
+    if (!runeDrop)
+    {
+        drawFly();
+    }
+    else
+    {
+        drawRune(randomLetter, fly.x, fly.y);
+    }
+
     moveFrog();
     moveTongue();
     drawFrog();
@@ -249,7 +292,7 @@ function frogGame()
 
     handleHUD();
 
-    handleGameState();
+    handleHungerState();
 
     if (frog.tongue.state === "idle")
     {
@@ -262,6 +305,34 @@ function handleHUD()
 {
     drawHungerBar();
     drawStaminaBar();
+    displayRunes();
+
+}
+
+function displayRunes()
+{
+    let count = runeArray.length;
+    let runeY = 50;
+
+    for (let i = 0; i < count; i++)
+    {
+        drawRune(runeArray[i], (width - 50), runeY)
+        runeY += 50;
+    }
+}
+
+// displays the collected runes on the win screen.
+function displayRunesForWinScreen()
+{
+    let count = runeArray.length;
+    let runeX = width/6;
+    runeArray = ["D", "E", "C", "A", "Y"];
+
+    for (let i = 0; i < count; i++)
+    {
+        drawRune(runeArray[i], runeX, 100)
+        runeX += width/6;
+    }
 }
 
 // draws the hunger bar
@@ -302,7 +373,7 @@ function handleCooldowns()
     frogStatus.hungerTimer -= deltaTime;
 }
 
-function handleGameState()
+function handleHungerState()
 {
     // checks if the player's hunger has reached maximum capacity
     if (frogStatus.hunger <= frogStatus.maxHunger)
@@ -329,15 +400,18 @@ function drawBackground(drawBlack)
     // to simulate a fog effect in a dark place.
     if (!drawBlack)
     {
-        background(0);
+        background(212, 185, 91);
         let a = 0;
 
         for (let i = 0; i < height; i++)
         {
-            stroke(255, a);
+            stroke(0, a);
             line(0, i, width, i);
-            a = map(i, 0, 500, 0, 100, true);
+            a = map(i, 0, 750, 255, 0, true);
         }
+        
+        drawBackgroundBuilding();
+        drawRuins();
     }
     else
     {
@@ -346,13 +420,90 @@ function drawBackground(drawBlack)
     
 }
 
+// draws some ruins near us
+function drawRuins()
+{
+    // draws the main building
+    push();
+    stroke(100);
+    strokeWeight(35);
+    fill(50);
+    rect(-20, 200, width/2,(height/3*2));
+    pop();
+
+    // draws the windows. couldve used for loop but i had to go quick
+    push();
+    noStroke();
+    fill(25);
+    rect(150, 325, 100,(height/3));
+    pop();
+
+    push();
+    noStroke();
+    fill(25);
+    arc(200, 325, 100, 150, PI, 0);
+    pop();
+
+    push();
+    noStroke();
+    fill(25);
+    rect(25, 325, 100,(height/3));
+    pop();
+
+    push();
+    noStroke();
+    fill(25);
+    arc(75, 325, 100, 150, PI, 0);
+    pop();
+}
+
+function drawBackgroundBuilding()
+{   
+    // draws the ground
+    push();
+    noStroke();
+    fill(30);
+    rect(0, 400, width, 100);
+    pop();
+
+    // draws the body of the distant church-like building
+    push();
+    noStroke();
+    fill(30);
+    rect(450, 275, 150, 135);
+    pop();
+
+    // draws the main roof
+    push();
+    noStroke();
+    fill(30);
+    triangle(450, 275, ((495+555)/2), 210, 600, 275);
+    pop();
+
+    // draws the tower
+    push();
+    noStroke();
+    fill(30);
+    rect(495, 190, 60, 200);
+    pop();
+    
+    // draws the roof of the tower
+    push();
+    noStroke();
+    fill(30);
+    triangle(495, 190, ((495+555)/2), 100, 555, 190);
+    pop();
+}
+
 /**
  * Moves the fly according to its speed
  * Resets the fly if it gets all the way to the right
  */
 function moveFly() {
     // Move the fly
-    fly.x += fly.speed;
+    let flySpeed = random(fly.minSpeed, fly.maxSpeed);
+
+    fly.x += flySpeed;
 
     // moves the fly up and down with a sine wave of random amplitude.
     let amplitude = random(1, 4);
@@ -381,6 +532,49 @@ function drawFly() {
     fill("#000000");
     ellipse(fly.x, fly.y, fly.size);
     pop();
+}
+
+function determineRuneLetter()
+{
+    let randomLetterChance = random(0, 1);
+
+    if (randomLetterChance <= 0.2)
+    {
+        randomLetter = "D";
+    }
+    else if (randomLetterChance <= 0.4)
+    {
+        randomLetter = "E";
+    }
+    else if (randomLetterChance <= 0.6)
+    {
+        randomLetter = "C";
+    }
+    else if (randomLetterChance <= 0.8)
+    {
+        randomLetter = "A";
+    }
+    else if (randomLetterChance <= 1)
+    {
+        randomLetter = "Y";
+    }
+}
+
+function drawRune(letter, xPos, yPos) 
+{
+    push();
+    stroke(116, 199, 227);
+    strokeWeight(4);
+    fill(31, 165, 207);
+    ellipse(xPos, yPos, fly.size * 2);
+    pop();
+
+    stroke(175);
+    strokeWeight(1);
+    textSize(20);
+    fill(255);
+    textAlign(CENTER, CENTER);
+    text(letter, xPos, yPos);
 }
 
 // draws the fly's wings. 
@@ -412,6 +606,19 @@ function drawFlyWings()
 function resetFly() {
     fly.x = 0;
     fly.y = random(100, 300);
+
+    if (runeDrop)
+    {
+        runeDrop = false;
+        return;
+    }
+
+    let powerUpChance = random(0, 1);
+    if (powerUpChance < 0.3333)
+    {
+        determineRuneLetter();
+        runeDrop = true;
+    }
 }
 
 /**
@@ -451,6 +658,49 @@ function moveTongue() {
         // The tongue stops if it hits the bottom
         if (frog.tongue.y >= height) {
             frog.tongue.state = "idle";
+            
+            let count = runeArray.length;
+
+            for (let i = 0; i < count; i++)
+            {
+                if (runeArray[i] === "D" && !hasD)
+                {
+                    winCon += 1;
+                    hasD = true;
+                    console.log(hasD);
+                }
+                else if (runeArray[i] === "E" && !hasE)
+                {
+                    winCon += 1;
+                    hasE = true;
+                    console.log(hasE);
+                }
+                else if (runeArray[i] === "C" && !hasC)
+                {
+                    winCon += 1;
+                    hasC = true;
+                    console.log(hasC);
+                }
+                else if (runeArray[i] === "A" && !hasA)
+                {
+                    winCon += 1;
+                    hasA = true;
+                    console.log(hasA);
+                }
+                else if (runeArray[i] === "Y" && !hasY)
+                {
+                    winCon += 1;
+                    hasY = true;
+                    console.log(hasY);
+                }
+            }
+
+            console.log(winCon);
+
+            if (winCon == 5)
+            {
+                gameWin = true;
+            }
         }
     }
 }
@@ -488,25 +738,146 @@ function drawFrog() {
     noStroke();
     ellipse(frog.body.x, frog.body.y, frog.body.size);
     pop();
+
+    drawFrogEyes();
+}
+
+// draws the two frog eyes. if i wasnt dumb, i'd clean this one up a bit.
+function drawFrogEyes()
+{
+    // left eye
+    push();
+    fill(71, 143, 47);
+    noStroke();
+    ellipse(frog.body.x - 40, frog.body.y - 40, 50);
+    pop();
+
+    push();
+    fill(235, 223, 223);
+    noStroke();
+    ellipse(frog.body.x - 40, frog.body.y - 40, 40);
+    pop();
+
+    // moves the left eye
+    let leftEyeY = undefined;
+    let leftEyeX = undefined;
+
+    leftEyeY = map(fly.y, height, 0, frog.body.y - 40, frog.body.y - 55)
+    leftEyeX = map(fly.x, 0, width, frog.body.x - 50, frog.body.x - 30)
+
+    push();
+    fill(0);
+    noStroke();
+    ellipse(leftEyeX, leftEyeY, 10);
+    pop();
+
+    // right eye
+    push();
+    fill(71, 143, 47);
+    noStroke();
+    ellipse(frog.body.x + 40, frog.body.y - 40, 50);
+    pop();
+
+    push();
+    fill(235, 223, 223);
+    noStroke();
+    ellipse(frog.body.x + 40, frog.body.y - 40, 40);
+    pop();
+
+    // moves the right eye
+    let rightEyeY = undefined;
+    let rightEyeX = undefined;
+
+    rightEyeY = map(fly.y, height, 0, frog.body.y - 40, frog.body.y - 55)
+    rightEyeX = map(fly.x, 0, width, frog.body.x + 30, frog.body.x + 50)
+
+    push();
+    fill(0);
+    noStroke();
+    ellipse(rightEyeX, rightEyeY, 10);
+    pop();
 }
 
 /**
  * Handles the tongue overlapping the fly
  */
 function checkTongueFlyOverlap() {
-    // Get distance from tongue to fly
+
+    let eaten = undefined;
+    // Get distance from tongue to fly or powerup
     const d = dist(frog.tongue.x, frog.tongue.y, fly.x, fly.y);
-    // Check if it's an overlap
-    const eaten = (d < frog.tongue.size/2 + fly.size/2);
+    
+    // since the sizes are different between the flies and the powerups, the collision detection has
+    // to be a bit different.
+    if (!runeDrop)
+    {
+        eaten = (d < frog.tongue.size/2 + fly.size/2);
+    }
+    else
+    {
+        eaten = (d < frog.tongue.size/2 + fly.size);
+    }
+
     if (eaten) {
+        if (runeDrop)
+        {
+            runeEaten();
+            console.log(runeArray);
+        }
+        else
+        {
+            // when the frog eats a fly, it lowers the hunger bar.
+            frogStatus.hunger -= 15;
+            frogStatus.hunger = constrain(frogStatus.hunger, 0, frogStatus.maxHunger);
+        }
+
         // Reset the fly
         resetFly();
         // Bring back the tongue
         frog.tongue.state = "inbound";
+    }
+}
 
-        // when the frog eats a fly, it lowers the hunger bar.
-        frogStatus.hunger -= 15;
-        frogStatus.hunger = constrain(frogStatus.hunger, 0, frogStatus.maxHunger);
+// if a rune has been eaten, then it stores the eaten rune in an array
+function runeEaten()
+{
+    switch (randomLetter)
+    {
+        case "D":
+            if (!hasD)
+            {
+                runeArray.push("D");
+                fly.maxSpeed += 0.75;
+            }
+            break;
+        case "E":
+            if (!hasE)
+            {
+                runeArray.push("E");
+                fly.maxSpeed += 0.75;
+            }
+            break;
+        case "C":
+            if (!hasC)
+            {
+                runeArray.push("C");
+                fly.maxSpeed += 0.75;
+            }
+            break;
+        case "A":
+            if (!hasA)
+            {
+                runeArray.push("A");
+                fly.maxSpeed += 0.75;
+            }
+            break;
+        case "Y":
+            if (!hasY)
+            {
+                runeArray.push("Y");
+                fly.maxSpeed += 0.75;
+            }
+            break;
     }
 }
 
@@ -516,16 +887,24 @@ function checkTongueFlyOverlap() {
 function mousePressed() {
     // pressing mouse handles different things depending on if player is in the help menu or in game.
     if (helpScreenEnabled)
-        {
-            helpScreenEnabled = false;
-            return;
-        }
+    {
+        helpScreenEnabled = false;
+        return;
+    }
+    // this is so that if you click while on the title screen, the frog wont launch his tongue out
+    // as soon as game starts.
+    else if (titleScreenEnabled)
+    {
+        return;
+    }
 
+    // checks if the player has the minimum stamina requirement to use the tongue.
     if (frogStamina.stamina < 25)
     {
         return;
     }
     
+    // if yes, then  the tongue launches, and takes away 25 stamina.
     if (frog.tongue.state === "idle") {
         frogStamina.stamina -= 25;
         frog.tongue.state = "outbound";
@@ -552,7 +931,7 @@ function keyPressed(event)
                 }
         }
     }
-    else if (gameOver)
+    else if (gameOver || gameWin)
     {
         if (event.keyCode == 13)
         {
@@ -562,9 +941,12 @@ function keyPressed(event)
     }
 }
 
+// function that resets everything needed to restart the game.
 function restartGame()
 {
     gameOver = false;
+    runeArray = [];
+    winCon = 0;
     frogStatus.hunger = 0;
     frogStamina.stamina = frogStamina.maxStamina;
 }
