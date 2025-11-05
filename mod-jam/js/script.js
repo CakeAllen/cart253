@@ -41,7 +41,7 @@ const frog = {
 const fly = {
     x: 0,
     y: 200, // Will be random
-    size: 10,
+    size: 13,
     speed: 3
 };
 
@@ -62,7 +62,7 @@ let frogStatus =
         background:
         {
             // colour + alpha
-            colour: 0,
+            colour: 255,
             a: 100,
 
             // position
@@ -84,6 +84,46 @@ let frogStatus =
             // position
             x: 25,
             y: 25,
+
+            // size
+            w: undefined,
+            h: 20
+        }
+    }
+};
+
+let frogStamina =
+{
+    stamina: 100,
+    maxStamina: 100,
+
+    bar:
+    {
+        background:
+        {
+            // colour + alpha
+            colour: 255,
+            a: 100,
+
+            // position
+            x: 25,
+            y: 50,
+
+            // size
+            w: 250,
+            h: 20
+        },
+
+        fill:
+        {
+            // colour
+            r: 11,
+            g: 161,
+            b: 34,
+
+            // position
+            x: 25,
+            y: 50,
 
             // size
             w: undefined,
@@ -152,7 +192,7 @@ function helpScreen()
 
     simpleCenteredText(20, 255, 'If you let a fly escape, it will make the frog hungrier so beware!', width/2, (height/4*2.5)); 
 
-    simpleCenteredText(30, 255, 'INSERT WIN CON HERE', width/2, (height/4*3)); 
+    simpleCenteredText(20, 255, 'You were given the task to clear the graveyard of the pesky flies.', width/2, (height/4*3)); 
 
     simpleCenteredText(17.5, 255, 'Press the left mouse button to go back to main menu', width/2, (height/4*3.75)); 
 }
@@ -161,12 +201,15 @@ function handleGameOverScreen()
 {
     drawBackground(true);
 
-    simpleCenteredText(50, 'red', 'STARVED', width/2, height/2);
+    simpleCenteredText(50, 'red', 'YOU STARVED', width/2, height/2);
+
+    simpleCenteredText(20, 200, 'Press Enter to go back to main menu', width/2, (height/4*2.75));
 }
 
 // makes putting centered text a bit easier and cleaner.
 function simpleCenteredText(size, colour, textString, pos_x, pos_y)
 {
+    noStroke();
     textSize(size);
     fill(colour);
     textAlign(CENTER, CENTER);
@@ -207,15 +250,21 @@ function frogGame()
     handleHUD();
 
     handleGameState();
+
+    if (frog.tongue.state === "idle")
+    {
+        staminaRegen(true);
+    }
 }
 
 // handles everything that has to do with UI.
 function handleHUD()
 {
     drawHungerBar();
-    // drawScore()
+    drawStaminaBar();
 }
 
+// draws the hunger bar
 function drawHungerBar()
 {
     // gets a percentage for the fill portion of the bar based on the current hunger value
@@ -229,6 +278,22 @@ function drawHungerBar()
     // then draws the fill portion of the hunger bar
     drawRect(false, undefined, undefined, frogStatus.bar.fill.r, frogStatus.bar.fill.g, frogStatus.bar.fill.b, frogStatus.bar.fill.x, 
         frogStatus.bar.fill.y, frogStatus.bar.fill.w, frogStatus.bar.fill.h);
+}
+
+// draws the stamina bar
+function drawStaminaBar()
+{
+    // gets a percentage for the fill portion of the bar based on the current hunger value
+    let stamBarLength = map(frogStamina.stamina, 0, frogStamina.maxStamina, 0, 1, true);
+    // multiplies the fill's width with the percentage acquired above
+    frogStamina.bar.fill.w = frogStamina.bar.background.w * stamBarLength;
+
+    // draws the background of the hunger bar first
+    drawRect(true, frogStamina.bar.background.colour, frogStamina.bar.background.a, undefined, undefined, undefined, frogStamina.bar.background.x, 
+        frogStamina.bar.background.y, frogStamina.bar.background.w, frogStamina.bar.background.h);
+    // then draws the fill portion of the hunger bar
+    drawRect(false, undefined, undefined, frogStamina.bar.fill.r, frogStamina.bar.fill.g, frogStamina.bar.fill.b, frogStamina.bar.fill.x, 
+        frogStamina.bar.fill.y, frogStamina.bar.fill.w, frogStamina.bar.fill.h);
 }
 
 // handles all the cooldowns of the project. 
@@ -260,9 +325,19 @@ function handleGameState()
 // draws the background. the parametre is for whether we want that background to be black(for the menus) or the regular game background
 function drawBackground(drawBlack)
 {
+    // if we dont want the background to be just black, i used a for loop to make a gradient 
+    // to simulate a fog effect in a dark place.
     if (!drawBlack)
     {
-        background("#87ceeb");
+        background(0);
+        let a = 0;
+
+        for (let i = 0; i < height; i++)
+        {
+            stroke(255, a);
+            line(0, i, width, i);
+            a = map(i, 0, 500, 0, 100, true);
+        }
     }
     else
     {
@@ -278,6 +353,11 @@ function drawBackground(drawBlack)
 function moveFly() {
     // Move the fly
     fly.x += fly.speed;
+
+    // moves the fly up and down with a sine wave of random amplitude.
+    let amplitude = random(1, 4);
+    fly.y += sin(frameCount * 0.075) * amplitude;
+
     // Handle the fly going off the canvas
     if (fly.x > width) {
 
@@ -292,11 +372,38 @@ function moveFly() {
  * Draws the fly as a black circle
  */
 function drawFly() {
+
+    drawFlyWings();
+
     push();
-    noStroke();
+    stroke(200);
+    strokeWeight(1);
     fill("#000000");
     ellipse(fly.x, fly.y, fly.size);
     pop();
+}
+
+// draws the fly's wings. 
+function drawFlyWings()
+{
+    for (let i = 0; i <= 2; i++)
+    {
+        let yOffset = undefined;
+
+        if (i == 0)
+        {
+            yOffset = 5;
+        }
+        else
+        {
+            yOffset = -5;
+        }
+        push();
+        noStroke();
+        fill(200);
+        ellipse(fly.x, (fly.y + yOffset), (fly.size - 2));
+        pop();
+    }
 }
 
 /**
@@ -304,7 +411,7 @@ function drawFly() {
  */
 function resetFly() {
     fly.x = 0;
-    fly.y = random(0, 300);
+    fly.y = random(100, 300);
 }
 
 /**
@@ -348,27 +455,36 @@ function moveTongue() {
     }
 }
 
+function staminaRegen(start)
+{
+    if (start)
+    {
+        frogStamina.stamina += 0.5;
+        frogStamina.stamina = constrain(frogStamina.stamina, 0, frogStamina.maxStamina);
+    }
+}
+
 /**
  * Displays the tongue (tip and line connection) and the frog (body)
  */
 function drawFrog() {
     // Draw the tongue tip
     push();
-    fill("#ff0000");
+    fill(153, 50, 50);
     noStroke();
     ellipse(frog.tongue.x, frog.tongue.y, frog.tongue.size);
     pop();
 
     // Draw the rest of the tongue
     push();
-    stroke("#ff0000");
+    stroke(153, 50, 50);
     strokeWeight(frog.tongue.size);
     line(frog.tongue.x, frog.tongue.y, frog.body.x, frog.body.y);
     pop();
 
     // Draw the frog's body
     push();
-    fill("#00ff00");
+    fill(71, 143, 47);
     noStroke();
     ellipse(frog.body.x, frog.body.y, frog.body.size);
     pop();
@@ -405,7 +521,13 @@ function mousePressed() {
             return;
         }
 
+    if (frogStamina.stamina < 25)
+    {
+        return;
+    }
+    
     if (frog.tongue.state === "idle") {
+        frogStamina.stamina -= 25;
         frog.tongue.state = "outbound";
     }
 }
@@ -430,4 +552,19 @@ function keyPressed(event)
                 }
         }
     }
+    else if (gameOver)
+    {
+        if (event.keyCode == 13)
+        {
+            restartGame();
+            titleScreenEnabled = true;
+        }
+    }
+}
+
+function restartGame()
+{
+    gameOver = false;
+    frogStatus.hunger = 0;
+    frogStamina.stamina = frogStamina.maxStamina;
 }
