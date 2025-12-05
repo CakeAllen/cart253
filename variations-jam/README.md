@@ -16,11 +16,14 @@ I have made three different variations of FrogFrogFrog:
 
 ## Screenshot(s)
 
-> ![Image of first variation](./assets/images/clown.png)
+# First Person FrogFrogFrog
+> ![Image of first variation](./assets/images/variation1.png)
 
-> ![Image of second variation](./assets/images/clown.png)
+# FroggerFroggerFrogger
+> ![Image of second variation](./assets/images/variation2.png)
 
-> ![Image of third variation](./assets/images/clown.png)
+# Fly Clicker
+> ![Image of third variation](./assets/images/variation3.png)
 
 ## Attribution
 
