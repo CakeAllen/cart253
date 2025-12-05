@@ -2,7 +2,7 @@
 
 Daniel Michurov
 
-[View this project online](URL_FOR_THE_RUNNING_PROJECT)
+[View this project online](https://cakeallen.github.io/cart253/variations-jam/index.html)
 
 ## Description
 
