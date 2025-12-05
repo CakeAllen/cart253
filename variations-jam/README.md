@@ -12,13 +12,15 @@ I have made three different variations of FrogFrogFrog:
 
 2. FroggerFroggerFrogger: Turns the game into frogger where you have to cross the road full of moving vehicles to get the flies.
 
-3. Fly Clicker: You get a button and every time you click it, you "eat" a fly. After a few flies, you get upgrades which give you MORE flies.
+3. Fly Clicker: You get a button and every time you click it, you collecta fly. After a few flies, you get upgrades which give you even MORE flies. Normally, the player would have to click on the upgrades to get them, but for simplicity's sake, i just made it automatic.
 
 ## Screenshot(s)
 
-This bit should have some images of the program running so that the reader has a sense of what it looks like. For example:
+> ![Image of first variation](./assets/images/clown.png)
 
-> ![Image of a clown face](./assets/images/clown.png)
+> ![Image of second variation](./assets/images/clown.png)
+
+> ![Image of third variation](./assets/images/clown.png)
 
 ## Attribution
 
