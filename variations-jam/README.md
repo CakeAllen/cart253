@@ -1,4 +1,4 @@
-# TBD
+# FrogFrogFrog Variations
 
 Daniel Michurov
 
@@ -6,7 +6,13 @@ Daniel Michurov
 
 ## Description
 
-~~
+I have made three different variations of FrogFrogFrog:
+
+1. First Person FrogFrogFrog: Puts you in the eyes of the frog trying to snip some flies out of mid-air. 
+
+2. FroggerFroggerFrogger: Turns the game into frogger where you have to cross the road full of moving vehicles to get the flies.
+
+3. Fly Clicker: You get a button and every time you click it, you "eat" a fly. After a few flies, you get upgrades which give you MORE flies.
 
 ## Screenshot(s)
 

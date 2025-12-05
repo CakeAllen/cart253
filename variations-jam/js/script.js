@@ -23,18 +23,20 @@ function setup() {
  * Display the menu or the current variation
 */
 function draw() {
+    console.log(state);
+
     switch (state) {
         case "menu":
             menuDraw();
             break;
-        case "first-variation":
-            firstDraw();
+        case "red-variation":
+            redDraw();
             break
-        case "second-variation":
-            secondDraw();
+        case "green-variation":
+            greenDraw();
             break;
-        case "third-variation":
-            thirdDraw();
+        case "blue-variation":
+            blueDraw();
             break;
     }
 }
@@ -48,14 +50,14 @@ function mousePressed() {
         case "menu":
             menuMousePressed();
             break;
-        case "first-variation":
-            firstMousePressed();
+        case "red-variation":
+            redMousePressed();
             break
-        case "second-variation":
-            secondMousePressed();
+        case "green-variation":
+            greenMousePressed();
             break;
-        case "third-variation":
-            thirdMousePressed();
+        case "blue-variation":
+            blueMousePressed();
             break;
     }
 }
@@ -69,14 +71,14 @@ function keyPressed(event) {
         case "menu":
             menuKeyPressed(event);
             break;
-        case "first-variation":
-            firstKeyPressed(event);
+        case "red-variation":
+            redKeyPressed(event);
             break
-        case "second-variation":
-            secondKeyPressed(event);
+        case "green-variation":
+            greenKeyPressed(event);
             break;
-        case "third-variation":
-            thirdKeyPressed(event);
+        case "blue-variation":
+            blueKeyPressed(event);
             break;
     }
 }

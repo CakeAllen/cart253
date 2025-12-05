@@ -5,9 +5,9 @@
  */
 
 const menuText = `
-(1) First variation
-(2) Second variation
-(3) Third variation`
+(1) First Person FrogFrogFrog
+(2) FroggerFroggerFrogger
+(3) Fly Clicker`
 
 /**
  * Display the main menu
@@ -29,18 +29,18 @@ function menuDraw() {
 function menuKeyPressed(event) {
     switch (event.keyCode) {
         case 49:
-            state = "first-variation";
-            firstSetup();
+            state = "red-variation";
+            redSetup();
             break;
 
         case 50:
-            state = "second-variation";
-            secondSetup();
+            state = "green-variation";
+            greenSetup();
             break;
 
         case 51:
-            state = "third-variation";
-            thirdSetup();
+            state = "blue-variation";
+            blueSetup();
             break;
     }
 }

@@ -1,13 +1,10 @@
 /**
- * Frogfrogfrog
- * Pippin Barr
+ * Froggerfroggerfrogger
+ * Daniel Michurov
  * 
- * A game of catching flies with your frog-tongue
+ * The frog is very hungry, but the flies are always across the road!
  * 
- * Instructions:
- * - Move the frog with your mouse
- * - Click to launch the tongue
- * - Catch flies
+ * All the frog has to do is cross the road without getting squashed.
  * 
  * Made with p5
  * https://p5js.org/
@@ -54,13 +51,10 @@ function secondSetup() {
 }
 
 function secondDraw() {
-    background("#87ceeb");
-    moveFly();
+    background("green");
     drawFly();
     moveFrog();
-    moveTongue();
     drawFrog();
-    checkTongueFlyOverlap();
 }
 
 /**
